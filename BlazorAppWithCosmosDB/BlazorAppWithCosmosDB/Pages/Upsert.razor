@@ -1,0 +1,54 @@
+﻿@page "/upsert"
+@page "/upsert/{id}"
+@using BlazorAppWithCosmosDB.Data
+
+@inject IUserService userService;
+@inject NavigationManager navigationManager;
+
+<h2>Upsert User</h2>
+
+<EditForm Model="@user">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <input type="hidden" @bind-value="user.id" />
+   
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <InputText id="Name" class="form-control" @bind-Value="user.Name" />
+    </div>
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <InputText id="Email" class="form-control" @bind-Value="user.Email" />
+    </div>
+    <div class="form-group">
+        <label for="Country">Country</label>
+        <InputText id="Country" class="form-control" @bind-Value="user.Country" />
+    </div>
+    <div class="form-group">
+        <label for="Age">Age</label>
+        <InputNumber id="Age" class="form-control" @bind-Value="user.Age" />
+    </div>
+    <button class="btn btn-primary" @onclick=@Save>Save</button>
+</EditForm>
+
+
+@code{
+    User user = new User();
+
+    [Parameter]
+    public string? id { get; set; }
+
+
+    protected override async Task OnParametersSetAsync() 
+    {
+        if (!string.IsNullOrEmpty(id)) {
+            user = await userService.GetAsync(id, id);
+        }
+    }
+
+    async Task Save() 
+    {
+        await userService.UpsertAsync(user);
+        navigationManager.NavigateTo("/");
+    }
+}

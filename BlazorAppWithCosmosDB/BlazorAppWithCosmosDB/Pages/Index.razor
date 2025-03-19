@@ -1,9 +1,58 @@
 ﻿@page "/"
+@using BlazorAppWithCosmosDB.Data
 
-<PageTitle>Index</PageTitle>
+@inject IUserService userService;
 
-<h1>Hello, world!</h1>
+@if (users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <a href=@($"Upsert") class="btn btn-primary"><span class="oi oi-plus">Add User</span></a>
 
-Welcome to your new app.
+    @if (users.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Id</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
+                        <tr>
+                            <td>@user.id</td>
+                            <td>@user.Name</td>
+                            <td>@user.Email</td>
+                            <td>
+                                <a href=@($"Upsert/{user.id}") class="btn btn-primary"><span class="oi oi-pencil"></span></a>
+                                <button class="btn btn-danger" @onclick="() => DeleteUser(user.id)"><span class="oi oi-delete"></span></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    List<User> users = new List<User>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userService.GetAllAsync();
+    }
+
+    private async Task DeleteUser(Guid? id)
+    {
+        await userService.DeleteAsync(id?.ToString(), id?.ToString());
+        users = await userService.GetAllAsync();
+    }
+}

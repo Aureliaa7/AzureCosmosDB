@@ -1,8 +1,17 @@
+using BlazorAppWithCosmosDB;
+using BlazorAppWithCosmosDB.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+// bind the CosmosDB section to Configuration and add it to the DI service container
+builder.Services.Configure<CosmosDbOptions>(
+    builder.Configuration.GetSection(CosmosDbOptions.CosmosDb));
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
